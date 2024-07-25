@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
         videoSplash = findViewById(R.id.splash);
 
-        Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.Splash2);
+        Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.splash2);
         videoSplash.setVideoURI(videoUri);
 
         videoSplash.post(this::animacionVideoView);
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void animacionVideoView() {
         final int radio = 300;
-        final int duracion = 3000;
+        final int duracion = 1000;
         final int repeticiones = 4;
 
         int contenedorAncho = ((View) videoSplash.getParent()).getWidth();

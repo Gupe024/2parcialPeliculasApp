@@ -1,4 +1,23 @@
 <resources>
     <string name="app_name">peliculas2parcialApp</string>
-    <string name="splash_gif"></string>
+    <string name="splash_gif">splash</string>
+    <string name="bienvenida">Bienvenido al "MOVIE CARITOONS"</string>
+    <string name="btn_menu">MENÚ</string>
+    <string name="btn_registro">REGISTRO</string>
+
+    <string name="hint_nombre">Ingresa un nombre</string>
+    <string name="text_nombre">Nombre:</string>
+    <string name="text_menor12">7 - 12</string>
+    <string name="text_menor18">12 - 17</string>
+    <string name="text_mayor18">18 - 65</string>
+    <string name="guardar">Guardar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="registro">Registro</string>
+    <string name="btn_guardar">Guardar</string>
+    <string-array name="genero_array">
+        <item>Seleccione</item>
+        <item>Masculino</item>
+        <item>Femenino</item>
+        <item>Otro</item>
+    </string-array>
 </resources>
