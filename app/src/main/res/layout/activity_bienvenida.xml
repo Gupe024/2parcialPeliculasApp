@@ -33,6 +33,25 @@
             android:text="@string/btn_registro"
             android:textSize="25sp"/>
 
+        <Button
+            android:id="@+id/btn_usuario"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/round_button"
+            android:drawableTop="@drawable/usuario"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/btn_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="@string/btn_menu"
+            android:textSize="25sp"
+            android:visibility="gone"/>
+
     </LinearLayout>
 
 </LinearLayout>

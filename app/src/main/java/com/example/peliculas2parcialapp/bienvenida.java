@@ -1,7 +1,8 @@
 package com.example.peliculas2parcialapp;
 
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -14,14 +15,17 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.HashSet;
+import java.util.Set;
+
 public class bienvenida extends AppCompatActivity {
 
-    private static final String PREFERENCIAS_ARCHIVO = "DatosRegistro";
-    private static final String NOMBRE_CLAVE = "nombre";
-    private static final String EDAD_CLAVE = "edad";
-    private static final String GENERO_CLAVE = "genero";
-
-    Button btnRegistro;
+    Button btnRegistro, btnUsuario, btnMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +33,8 @@ public class bienvenida extends AppCompatActivity {
         setContentView(R.layout.activity_bienvenida);
 
         btnRegistro = findViewById(R.id.btn_registro);
+        btnUsuario = findViewById(R.id.btn_usuario);
+        btnMenu = findViewById(R.id.btn_menu);
 
         btnRegistro.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,7 +42,36 @@ public class bienvenida extends AppCompatActivity {
                 MostrarDialogoRegistro();
             }
         });
-        leerDatosRegistro();
+
+        btnUsuario.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mostrarDialogoUsuarios();
+            }
+        });
+
+        btnMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent ventana = new Intent(bienvenida.this, menu.class);
+                startActivity(ventana);
+            }
+        });
+
+        verificarRegistro();
+    }
+
+    private void verificarRegistro() {
+        Set<String> usuarios = leerUsuarios();
+
+        if (usuarios.isEmpty()) {
+            btnUsuario.setVisibility(View.GONE);
+            btnMenu.setVisibility(View.GONE);
+        } else {
+            btnUsuario.setVisibility(View.VISIBLE);
+            btnMenu.setVisibility(View.VISIBLE);
+        }
+        btnRegistro.setVisibility(View.VISIBLE);
     }
 
     private void MostrarDialogoRegistro() {
@@ -78,23 +113,117 @@ public class bienvenida extends AppCompatActivity {
                 if (nombre.isEmpty() || edadSeleccionadaId == -1 || genero.isEmpty()) {
                     Toast.makeText(bienvenida.this, "Necesita llenar todos los campos para guardar", Toast.LENGTH_SHORT).show();
                 } else {
-                    SharedPreferences preferencias = getSharedPreferences(PREFERENCIAS_ARCHIVO, MODE_PRIVATE);
-                    SharedPreferences.Editor editor = preferencias.edit();
-                    editor.putString(NOMBRE_CLAVE, nombre);
-                    editor.putString(EDAD_CLAVE, edad);
-                    editor.putString(GENERO_CLAVE, genero);
-                    editor.apply();
+                    Set<String> usuarios = leerUsuarios();
+                    usuarios.add(nombre);
+                    guardarUsuarios(usuarios);
                     Toast.makeText(bienvenida.this, "Datos guardados correctamente", Toast.LENGTH_SHORT).show();
+                    verificarRegistro();
                     dialogo.dismiss();
                 }
             }
         });
     }
 
-    private void leerDatosRegistro() {
-        SharedPreferences preferencias = getSharedPreferences(PREFERENCIAS_ARCHIVO, MODE_PRIVATE);
-        String nombre = preferencias.getString(NOMBRE_CLAVE, "No definido");
-        String edad = preferencias.getString(EDAD_CLAVE, "No definido");
-        String genero = preferencias.getString(GENERO_CLAVE, "No definido");
+    private void mostrarDialogoUsuarios() {
+        Set<String> usuarios = leerUsuarios();
+
+        final String[] arrayUsuarios = usuarios.toArray(new String[0]);
+        boolean[] checkedItems = new boolean[arrayUsuarios.length];
+        final Set<String> usuariosAEliminar = new HashSet<>();
+
+        AlertDialog.Builder constructor = new AlertDialog.Builder(this);
+        constructor.setTitle("Seleccione Usuarios")
+                .setMultiChoiceItems(arrayUsuarios, checkedItems, (dialog, which, isChecked) -> {
+                    if (isChecked) {
+                        usuariosAEliminar.add(arrayUsuarios[which]);
+                    } else {
+                        usuariosAEliminar.remove(arrayUsuarios[which]);
+                    }
+                })
+                .setPositiveButton("Eliminar", (dialog, id) -> {
+                    eliminarUsuarios(usuariosAEliminar);
+                    dialog.dismiss();
+                })
+                .setNeutralButton("Cambiar Usuario", (dialog, which) -> {
+                    if (arrayUsuarios.length > 0) {
+                        mostrarDialogoCambioUsuario(arrayUsuarios);
+                    }
+                })
+                .setNegativeButton("Cancelar", (dialog, id) -> dialog.dismiss());
+
+        constructor.create().show();
+    }
+
+    private void mostrarDialogoCambioUsuario(final String[] arrayUsuarios) {
+        AlertDialog.Builder constructor = new AlertDialog.Builder(this);
+        constructor.setTitle("Seleccione Usuario")
+                .setItems(arrayUsuarios, (dialog, which) -> {
+                    String usuarioSeleccionado = arrayUsuarios[which];
+                    cambiarUsuario(usuarioSeleccionado);
+                })
+                .setNegativeButton("Cancelar", (dialog, id) -> dialog.dismiss());
+
+        constructor.create().show();
+    }
+
+    private void cambiarUsuario(String usuario) {
+        try {
+            FileOutputStream fos = openFileOutput("usuario_actual.txt", MODE_PRIVATE);
+            BufferedWriter buffered = new BufferedWriter(new OutputStreamWriter(fos));
+            buffered.write(usuario);
+            buffered.close();
+            Toast.makeText(this, "Has cambiado al usuario " + usuario, Toast.LENGTH_SHORT).show();
+        } catch (Exception ex) {
+            Log.e("Ficheros", "Error al guardar el archivo " + ex);
+        }
+    }
+
+    private void eliminarUsuarios(Set<String> usuariosAEliminar) {
+        Set<String> usuarios = leerUsuarios();
+
+        if (usuarios.isEmpty()) {
+            Toast.makeText(this, "No hay usuarios para eliminar", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        usuarios.removeAll(usuariosAEliminar);
+        guardarUsuarios(usuarios);
+
+        if (usuarios.isEmpty()) {
+            btnUsuario.setVisibility(View.GONE);
+            btnMenu.setVisibility(View.GONE);
+        }
+
+        Toast.makeText(this, "Usuarios eliminados", Toast.LENGTH_SHORT).show();
+        verificarRegistro();
+    }
+
+    private Set<String> leerUsuarios() {
+        Set<String> usuarios = new HashSet<>();
+        try {
+            BufferedReader buffered = new BufferedReader(new InputStreamReader(openFileInput("usuarios.txt")));
+            String linea;
+            while ((linea = buffered.readLine()) != null) {
+                usuarios.add(linea);
+            }
+            buffered.close();
+        } catch (Exception ex) {
+            Log.e("Ficheros", "Error al leer el archivo " + ex);
+        }
+        return usuarios;
+    }
+
+    private void guardarUsuarios(Set<String> usuarios) {
+        try {
+            FileOutputStream fos = openFileOutput("usuarios.txt", MODE_PRIVATE);
+            BufferedWriter buffered = new BufferedWriter(new OutputStreamWriter(fos));
+            for (String usuario : usuarios) {
+                buffered.write(usuario);
+                buffered.newLine();
+            }
+            buffered.close();
+        } catch (Exception ex) {
+            Log.e("Ficheros", "Error al guardar el archivo " + ex);
+        }
     }
 }

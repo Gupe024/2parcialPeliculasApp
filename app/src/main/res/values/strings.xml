@@ -4,6 +4,8 @@
     <string name="bienvenida">Bienvenido al "MOVIE CARITOONS"</string>
     <string name="btn_menu">MENÚ</string>
     <string name="btn_registro">REGISTRO</string>
+    <string name="btn_usuario">USUARIO</string>
+    <string name="btn_eliminarU">ELIMINAR USUARIO</string>
 
     <string name="hint_nombre">Ingresa un nombre</string>
     <string name="text_nombre">Nombre:</string>
@@ -20,4 +22,8 @@
         <item>Femenino</item>
         <item>Otro</item>
     </string-array>
+
+    <string name="btn_caricaturas">CARICAURAS</string>
+    <string name="btn_cienciaficcion">CIENCIA FICCIÓN</string>
+    <string name="btn_terror">TERROR</string>
 </resources>

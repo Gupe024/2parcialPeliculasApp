@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".menu">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_menu"
+        android:layout_gravity="center"
+        android:layout_marginTop="60dp"
+        android:textSize="35dp"/>
+
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="5dp"
+        android:textSize="20sp"
+        android:padding="5dp"
+        tools:text="Hola [usuario] de acuerdo a tu [edad] tienes disponible: "/>
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/btn_caricaturas"
+                android:layout_width="165dp"
+                android:layout_height="180dp"
+                android:src="@drawable/caricaturas"
+                android:contentDescription="@string/btn_caricaturas"
+                android:scaleType="fitCenter"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_caricaturas"
+                android:contentDescription="@string/btn_caricaturas"/>
+
+            <ImageButton
+                android:id="@+id/btn_ciencia_ficcion"
+                android:layout_width="170dp"
+                android:layout_height="170dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ciencia_ficcion"
+                android:contentDescription="@string/btn_cienciaficcion"
+                android:scaleType="fitCenter"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_cienciaficcion"/>
+
+            <ImageButton
+                android:id="@+id/btn_terror"
+                android:layout_width="180dp"
+                android:layout_height="190dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/terror"
+                android:contentDescription="@string/btn_terror"
+                android:scaleType="fitCenter"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/btn_terror"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
