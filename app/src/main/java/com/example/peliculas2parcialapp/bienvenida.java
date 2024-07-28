@@ -2,13 +2,12 @@ package com.example.peliculas2parcialapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -17,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -25,7 +25,9 @@ import java.util.Set;
 
 public class bienvenida extends AppCompatActivity {
 
-    Button btnRegistro, btnUsuario, btnMenu;
+    Button btnRegistro;
+    Button btnUsuario;
+    Button btnMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +61,7 @@ public class bienvenida extends AppCompatActivity {
         });
 
         verificarRegistro();
+        crearArchivoFoto();
     }
 
     private void verificarRegistro() {
@@ -74,6 +77,15 @@ public class bienvenida extends AppCompatActivity {
         btnRegistro.setVisibility(View.VISIBLE);
     }
 
+    private void crearArchivoFoto() {
+        try {
+            FileOutputStream fos = openFileOutput("foto_usuario.png", MODE_PRIVATE);
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void MostrarDialogoRegistro() {
         AlertDialog.Builder constructor = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -81,12 +93,33 @@ public class bienvenida extends AppCompatActivity {
         constructor.setView(vistaDialogo);
 
         final EditText campoDeNombre = vistaDialogo.findViewById(R.id.nombre);
-        final RadioGroup grupoDeEdades = vistaDialogo.findViewById(R.id.rango_edades);
+        final Spinner spinnerRangoEdades = vistaDialogo.findViewById(R.id.spinner_rango_edades);
+        final EditText edadAdicional = vistaDialogo.findViewById(R.id.edad_adicional);
         final Spinner spinnerGenero = vistaDialogo.findViewById(R.id.spinner_genero);
 
-        ArrayAdapter<CharSequence> adaptador = ArrayAdapter.createFromResource(this, R.array.genero_array, android.R.layout.simple_spinner_item);
-        adaptador.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerGenero.setAdapter(adaptador);
+        ArrayAdapter<CharSequence> adaptadorEdad = ArrayAdapter.createFromResource(this, R.array.rango_edad, android.R.layout.simple_spinner_item);
+        adaptadorEdad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerRangoEdades.setAdapter(adaptadorEdad);
+
+        ArrayAdapter<CharSequence> adaptadorGenero = ArrayAdapter.createFromResource(this, R.array.genero_array, android.R.layout.simple_spinner_item);
+        adaptadorGenero.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerGenero.setAdapter(adaptadorGenero);
+
+        spinnerRangoEdades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position == spinnerRangoEdades.getCount() - 1) {
+                    edadAdicional.setVisibility(View.VISIBLE);
+                } else {
+                    edadAdicional.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // No hacer nada
+            }
+        });
 
         constructor.setTitle(R.string.registro)
                 .setPositiveButton(R.string.guardar, null)
@@ -99,25 +132,20 @@ public class bienvenida extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String nombre = campoDeNombre.getText().toString();
-                int edadSeleccionadaId = grupoDeEdades.getCheckedRadioButtonId();
-                String edad = "";
-                if (edadSeleccionadaId == R.id.rg_menor12) {
-                    edad = getString(R.string.text_menor12);
-                } else if (edadSeleccionadaId == R.id.rg_menor18) {
-                    edad = getString(R.string.text_menor18);
-                } else if (edadSeleccionadaId == R.id.rg_mayor18) {
-                    edad = getString(R.string.text_mayor18);
-                }
+                String rangoEdad = spinnerRangoEdades.getSelectedItem().toString();
+                String edad = (edadAdicional.getVisibility() == View.VISIBLE) ? edadAdicional.getText().toString() : rangoEdad;
                 String genero = spinnerGenero.getSelectedItem().toString();
 
-                if (nombre.isEmpty() || edadSeleccionadaId == -1 || genero.isEmpty()) {
+                if (nombre.isEmpty() || genero.isEmpty() || (edadAdicional.getVisibility() == View.VISIBLE && edad.isEmpty())) {
                     Toast.makeText(bienvenida.this, "Necesita llenar todos los campos para guardar", Toast.LENGTH_SHORT).show();
                 } else {
+                    String usuarioData = nombre + "|" + edad + "|" + genero;
                     Set<String> usuarios = leerUsuarios();
-                    usuarios.add(nombre);
+                    usuarios.add(usuarioData);
                     guardarUsuarios(usuarios);
                     Toast.makeText(bienvenida.this, "Datos guardados correctamente", Toast.LENGTH_SHORT).show();
                     verificarRegistro();
+                    mostrarContenidoArchivo("usuarios.txt");
                     dialogo.dismiss();
                 }
             }
@@ -160,6 +188,7 @@ public class bienvenida extends AppCompatActivity {
                 .setItems(arrayUsuarios, (dialog, which) -> {
                     String usuarioSeleccionado = arrayUsuarios[which];
                     cambiarUsuario(usuarioSeleccionado);
+                    mostrarContenidoArchivo("usuario_actual.txt");
                 })
                 .setNegativeButton("Cancelar", (dialog, id) -> dialog.dismiss());
 
@@ -174,7 +203,7 @@ public class bienvenida extends AppCompatActivity {
             buffered.close();
             Toast.makeText(this, "Has cambiado al usuario " + usuario, Toast.LENGTH_SHORT).show();
         } catch (Exception ex) {
-            Log.e("Ficheros", "Error al guardar el archivo " + ex);
+            Toast.makeText(this, "Error al guardar el archivo: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -184,6 +213,10 @@ public class bienvenida extends AppCompatActivity {
         if (usuarios.isEmpty()) {
             Toast.makeText(this, "No hay usuarios para eliminar", Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        for (String usuario : usuariosAEliminar) {
+            eliminarFotoUsuario(usuario);
         }
 
         usuarios.removeAll(usuariosAEliminar);
@@ -196,6 +229,20 @@ public class bienvenida extends AppCompatActivity {
 
         Toast.makeText(this, "Usuarios eliminados", Toast.LENGTH_SHORT).show();
         verificarRegistro();
+        mostrarContenidoArchivo("usuarios.txt");
+    }
+
+    private void eliminarFotoUsuario(String usuario) {
+        String[] partes = usuario.split("\\|");
+        if (partes.length > 0) {
+            String nombreUsuario = partes[0];
+            File storageDir = getExternalFilesDir(null);
+            File fotoFile = new File(storageDir, "foto_" + nombreUsuario + ".jpg");
+            if (fotoFile.exists()) {
+                fotoFile.delete();
+                Toast.makeText(this, "Foto del usuario " + nombreUsuario + " eliminada", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private Set<String> leerUsuarios() {
@@ -208,7 +255,7 @@ public class bienvenida extends AppCompatActivity {
             }
             buffered.close();
         } catch (Exception ex) {
-            Log.e("Ficheros", "Error al leer el archivo " + ex);
+            Toast.makeText(this, "Error al leer el archivo: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
         }
         return usuarios;
     }
@@ -223,7 +270,22 @@ public class bienvenida extends AppCompatActivity {
             }
             buffered.close();
         } catch (Exception ex) {
-            Log.e("Ficheros", "Error al guardar el archivo " + ex);
+            Toast.makeText(this, "Error al guardar el archivo: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void mostrarContenidoArchivo(String archivo) {
+        StringBuilder contenido = new StringBuilder();
+        try {
+            BufferedReader buffered = new BufferedReader(new InputStreamReader(openFileInput(archivo)));
+            String linea;
+            while ((linea = buffered.readLine()) != null) {
+                contenido.append(linea).append("\n");
+            }
+            buffered.close();
+        } catch (Exception ex) {
+            Toast.makeText(this, "Error al leer el archivo: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        System.out.println("Contenido del archivo " + archivo + ":\n" + contenido.toString());
     }
 }

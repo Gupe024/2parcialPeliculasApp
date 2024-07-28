@@ -16,6 +16,31 @@
     <string name="cancelar">Cancelar</string>
     <string name="registro">Registro</string>
     <string name="btn_guardar">Guardar</string>
+    <string name="hint_edad_adicional">Ingresar edad</string>
+    <string-array name="rango_edad">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+        <item>O más</item>
+    </string-array>
+
     <string-array name="genero_array">
         <item>Seleccione</item>
         <item>Masculino</item>
@@ -24,6 +49,15 @@
     </string-array>
 
     <string name="btn_caricaturas">CARICAURAS</string>
-    <string name="btn_cienciaficcion">CIENCIA FICCIÓN</string>
+    <string name="btn_accion">ACCIÓN</string>
     <string name="btn_terror">TERROR</string>
+    <string name="btn_regresar">REGRESAR</string>
+
+    <string name="btn_retroceder">RETROCEDER</string>
+    <string name="btn_pausa">PAUSA</string>
+    <string name="bTn_play">PLAY</string>
+    <string name="btn_detener">DETENER</string>
+    <string name="btn_adelantar">ADELANTAR</string>
+    <string name="text_edad">Edad</string>
+
 </resources>

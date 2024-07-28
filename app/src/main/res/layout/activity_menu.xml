@@ -17,20 +17,20 @@
         android:textSize="35dp"/>
 
     <TextView
-
+        android:id="@+id/textViewSaludo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginStart="5dp"
         android:textSize="20sp"
-        android:padding="5dp"
-        tools:text="Hola [usuario] de acuerdo a tu [edad] tienes disponible: "/>
+        android:padding="5dp" />
 
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:padding="20dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,27 +44,33 @@
                 android:layout_height="180dp"
                 android:src="@drawable/caricaturas"
                 android:contentDescription="@string/btn_caricaturas"
-                android:scaleType="fitCenter"/>
+                android:scaleType="fitCenter"
+                android:visibility="gone"/>
 
             <TextView
+                android:id="@+id/etiqueta_caricaturas"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/btn_caricaturas"
-                android:contentDescription="@string/btn_caricaturas"/>
+                android:contentDescription="@string/btn_caricaturas"
+                android:visibility="gone"/>
 
             <ImageButton
-                android:id="@+id/btn_ciencia_ficcion"
+                android:id="@+id/btn_accion"
                 android:layout_width="170dp"
                 android:layout_height="170dp"
                 android:layout_marginTop="10dp"
-                android:src="@drawable/ciencia_ficcion"
-                android:contentDescription="@string/btn_cienciaficcion"
-                android:scaleType="fitCenter"/>
+                android:src="@drawable/accion"
+                android:contentDescription="@string/btn_accion"
+                android:scaleType="fitCenter"
+                android:visibility="gone"/>
 
             <TextView
+                android:id="@+id/etiqueta_accion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_cienciaficcion"/>
+                android:text="@string/btn_accion"
+                android:visibility="gone"/>
 
             <ImageButton
                 android:id="@+id/btn_terror"
@@ -73,12 +79,23 @@
                 android:layout_marginTop="10dp"
                 android:src="@drawable/terror"
                 android:contentDescription="@string/btn_terror"
-                android:scaleType="fitCenter"/>
+                android:scaleType="fitCenter"
+                android:visibility="gone"/>
 
             <TextView
+                android:id="@+id/etiqueta_terror"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/btn_terror"/>
+                android:text="@string/btn_terror"
+                android:visibility="gone"/>
+
+            <Button
+                android:id="@+id/btnregresar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                android:text="@string/btn_regresar" />
 
         </LinearLayout>
 
