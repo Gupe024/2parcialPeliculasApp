@@ -4,18 +4,13 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.VideoView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,40 +36,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void animacionVideoView() {
-        final int radio = 300;
-        final int duracion = 1000;
-        final int repeticiones = 4;
+        final int duracionBajada = 1000;
+        final int duracionZoom = 1000;
 
-        int contenedorAncho = ((View) videoSplash.getParent()).getWidth();
-        int contenedorAlto = ((View) videoSplash.getParent()).getHeight();
-        int videoAncho = videoSplash.getWidth();
+        View parent = (View) videoSplash.getParent();
         int videoAlto = videoSplash.getHeight();
 
-        videoSplash.setX(contenedorAncho - videoAncho);
-        videoSplash.setY((contenedorAlto - videoAlto) / 2);
+        ObjectAnimator bajar = ObjectAnimator.ofFloat(videoSplash, "translationY", -videoAlto, 0);
+        bajar.setDuration(duracionBajada);
 
-        ValueAnimator animador = ValueAnimator.ofFloat(0, 300 * repeticiones);
-        animador.setDuration(duracion * repeticiones);
-        animador.setRepeatCount(0);
+        ObjectAnimator scaleX = ObjectAnimator.ofFloat(videoSplash, "scaleX", 1f, 1.4f);
+        ObjectAnimator scaleY = ObjectAnimator.ofFloat(videoSplash, "scaleY", 1f, 1.4f);
 
-        animador.addUpdateListener(animation -> {
-            float angulo = (float) animation.getAnimatedValue();
-            float radianes = (float) Math.toRadians(angulo);
+        scaleX.setDuration(duracionZoom);
+        scaleY.setDuration(duracionZoom);
 
-            float x = (float) (radio * Math.cos(radianes)) + (contenedorAncho / 1) - (videoAncho / 1);
-            float y = (float) (radio * Math.sin(radianes)) + (contenedorAlto / 3) - (videoAlto / 3);
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.play(bajar).before(scaleX).before(scaleY);
 
-            videoSplash.setX(x);
-            videoSplash.setY(y);
-        });
-
-        animador.addListener(new AnimatorListenerAdapter() {
+        animatorSet.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 videoSplash.start();
             }
         });
 
-        animador.start();
+        animatorSet.start();
     }
 }

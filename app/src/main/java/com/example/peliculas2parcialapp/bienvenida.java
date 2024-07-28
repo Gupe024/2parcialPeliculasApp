@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -62,6 +63,7 @@ public class bienvenida extends AppCompatActivity {
 
         verificarRegistro();
         crearArchivoFoto();
+        crearArchivoCategoria();
     }
 
     private void verificarRegistro() {
@@ -80,6 +82,15 @@ public class bienvenida extends AppCompatActivity {
     private void crearArchivoFoto() {
         try {
             FileOutputStream fos = openFileOutput("foto_usuario.png", MODE_PRIVATE);
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void crearArchivoCategoria() {
+        try {
+            FileOutputStream fos = openFileOutput("categoria_seleccionada.txt", MODE_PRIVATE);
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -216,10 +227,11 @@ public class bienvenida extends AppCompatActivity {
         }
 
         for (String usuario : usuariosAEliminar) {
+            usuarios.remove(usuario);
             eliminarFotoUsuario(usuario);
+            eliminarUsuarioActualSiCoincide(usuario);
         }
 
-        usuarios.removeAll(usuariosAEliminar);
         guardarUsuarios(usuarios);
 
         if (usuarios.isEmpty()) {
@@ -227,35 +239,52 @@ public class bienvenida extends AppCompatActivity {
             btnMenu.setVisibility(View.GONE);
         }
 
-        Toast.makeText(this, "Usuarios eliminados", Toast.LENGTH_SHORT).show();
-        verificarRegistro();
-        mostrarContenidoArchivo("usuarios.txt");
+        Toast.makeText(this, "Usuarios eliminados correctamente", Toast.LENGTH_SHORT).show();
     }
 
     private void eliminarFotoUsuario(String usuario) {
-        String[] partes = usuario.split("\\|");
-        if (partes.length > 0) {
-            String nombreUsuario = partes[0];
-            File storageDir = getExternalFilesDir(null);
-            File fotoFile = new File(storageDir, "foto_" + nombreUsuario + ".jpg");
-            if (fotoFile.exists()) {
-                fotoFile.delete();
-                Toast.makeText(this, "Foto del usuario " + nombreUsuario + " eliminada", Toast.LENGTH_SHORT).show();
+        try {
+            File fotoFile = new File(getFilesDir(), usuario + "_foto.png");
+            if (fotoFile.exists() && fotoFile.delete()) {
+                Toast.makeText(this, "Foto eliminada: " + usuario + "_foto.png", Toast.LENGTH_SHORT).show();
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void eliminarUsuarioActualSiCoincide(String usuarioEliminado) {
+        try {
+            File usuarioActualFile = new File(getFilesDir(), "usuario_actual.txt");
+            if (usuarioActualFile.exists()) {
+                BufferedReader buffered = new BufferedReader(new InputStreamReader(new FileInputStream(usuarioActualFile)));
+                String usuarioActual = buffered.readLine();
+                buffered.close();
+                if (usuarioActual != null && usuarioActual.equals(usuarioEliminado)) {
+                    if (usuarioActualFile.delete()) {
+                        Toast.makeText(this, "El usuario actual ha sido eliminado", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "No se pudo eliminar el archivo de usuario actual", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
     private Set<String> leerUsuarios() {
         Set<String> usuarios = new HashSet<>();
         try {
-            BufferedReader buffered = new BufferedReader(new InputStreamReader(openFileInput("usuarios.txt")));
+            FileInputStream fis = openFileInput("usuarios.txt");
+            BufferedReader buffered = new BufferedReader(new InputStreamReader(fis));
             String linea;
             while ((linea = buffered.readLine()) != null) {
                 usuarios.add(linea);
             }
             buffered.close();
-        } catch (Exception ex) {
-            Toast.makeText(this, "Error al leer el archivo: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return usuarios;
     }
@@ -269,23 +298,25 @@ public class bienvenida extends AppCompatActivity {
                 buffered.newLine();
             }
             buffered.close();
-        } catch (Exception ex) {
-            Toast.makeText(this, "Error al guardar el archivo: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private void mostrarContenidoArchivo(String archivo) {
-        StringBuilder contenido = new StringBuilder();
+    private void mostrarContenidoArchivo(String fileName) {
         try {
-            BufferedReader buffered = new BufferedReader(new InputStreamReader(openFileInput(archivo)));
+            FileInputStream fis = openFileInput(fileName);
+            BufferedReader buffered = new BufferedReader(new InputStreamReader(fis));
+            StringBuilder contenido = new StringBuilder();
             String linea;
             while ((linea = buffered.readLine()) != null) {
                 contenido.append(linea).append("\n");
             }
             buffered.close();
-        } catch (Exception ex) {
-            Toast.makeText(this, "Error al leer el archivo: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, contenido.toString(), Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        System.out.println("Contenido del archivo " + archivo + ":\n" + contenido.toString());
     }
 }
+

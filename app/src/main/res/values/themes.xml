@@ -1,9 +1,28 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.Peliculas2parcialApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="android:windowBackground">@drawable/fondo_uno</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+
     </style>
 
     <style name="Theme.Peliculas2parcialApp" parent="Base.Theme.Peliculas2parcialApp" />
+
+    <style name="TextViewRosado">
+        <item name="android:textColor">@color/rosado</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Estilo1">
+    <item name="android:textColor">@color/rosado</item>
+    <item name="android:textSize">25dp</item>
+    </style>
+
+    <style name="Estilo2">
+        <item name="android:textColor">@color/morado</item>
+        <item name="android:textSize">18dp</item>
+    </style>
+
 </resources>

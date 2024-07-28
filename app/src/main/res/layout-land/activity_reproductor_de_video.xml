@@ -9,50 +9,66 @@
     android:padding="16dp"
     tools:context=".reproductor_de_video">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/text_nombre"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/text_nombre"
-                android:padding="8dp"
-                />
+                android:orientation="horizontal"
+                android:padding="10dp">
 
-            <TextView
-                android:id="@+id/text_edad"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/text_edad"
-                android:textSize="18sp"
-                android:padding="8dp" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/text_nombre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/text_nombre"
+                        android:textSize="18sp"
+                        android:padding="8dp"
+                        style="@style/Estilo2"/>
+
+                    <TextView
+                        android:id="@+id/text_edad"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/text_edad"
+                        android:textSize="18sp"
+                        android:padding="8dp"
+                        style="@style/Estilo2"/>
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/imagen_foto"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_gravity="end"
+                    android:scaleType="centerCrop"/>
+
+            </LinearLayout>
+
+            <SurfaceView
+                android:id="@+id/reproductor"
+                android:layout_width="500dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center"/>
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/imagen_foto"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_gravity="end"
-            android:scaleType="centerCrop"/>
-
-    </LinearLayout>
-
-    <SurfaceView
-        android:id="@+id/reproductor"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_gravity="center"/>
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -115,7 +131,7 @@
         android:id="@+id/btn_Regresar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="5dp"
         android:layout_gravity="center"
         android:text="@string/btn_regresar" />
 

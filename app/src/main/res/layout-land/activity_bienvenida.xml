@@ -11,7 +11,7 @@
         android:id="@+id/btn_usuario"
         android:layout_width="72dp"
         android:layout_height="72dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="50dp"
         android:layout_marginStart="30dp"
         android:background="@drawable/round_button"
         android:drawableTop="@drawable/usuario"
@@ -27,7 +27,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="140dp"
+            android:layout_marginTop="60dp"
             android:layout_marginBottom="20dp"
             android:gravity="center"
             android:text="@string/bienvenida"
@@ -37,10 +37,10 @@
             android:id="@+id/btn_registro"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:layout_marginBottom="20dp"
-            android:layout_marginTop="50dp"
             android:text="@string/btn_registro"
-            android:textSize="25sp"/>
+            android:textSize="25sp" />
 
         <Button
             android:id="@+id/btn_menu"
