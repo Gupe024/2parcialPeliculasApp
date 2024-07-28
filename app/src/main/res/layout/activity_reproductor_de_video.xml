@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/text_nombre"
                 android:padding="8dp"
-                />
+                style="@style/Estilo2"/>
 
             <TextView
                 android:id="@+id/text_edad"
@@ -35,7 +35,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/text_edad"
                 android:textSize="18sp"
-                android:padding="8dp" />
+                android:padding="8dp"
+                style="@style/Estilo2"/>
 
         </LinearLayout>
 

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -48,6 +49,8 @@ public class reproductor_de_video extends AppCompatActivity {
     File fotoArchivo;
     private String categoriaSeleccionada;
     private String nombreUsuarioActual;
+    private static final String FOTO_TOMADA_KEY = "fotoTomada";
+    private static final String NOMBRE_USUARIO_KEY = "nombreUsuario";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +68,16 @@ public class reproductor_de_video extends AppCompatActivity {
         textNombre = findViewById(R.id.text_nombre);
         textEdad = findViewById(R.id.text_edad);
 
-        mostrarUsuarioEdad();
+        if (savedInstanceState != null) {
+            FotoTomada = savedInstanceState.getBoolean(FOTO_TOMADA_KEY, false);
+            nombreUsuarioActual = savedInstanceState.getString(NOMBRE_USUARIO_KEY);
+            if (FotoTomada) {
+                cargarFoto();
+                habilitarBotones(true);
+            }
+        } else {
+            mostrarUsuarioEdad();
+        }
 
         // Obtener la categoría seleccionada desde el Intent
         categoriaSeleccionada = getIntent().getStringExtra("categoria");
@@ -74,7 +86,7 @@ public class reproductor_de_video extends AppCompatActivity {
         holder.addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-                configurarMediaPlayer(holder);
+                new ConfigurarMediaPlayerTask().execute(holder);
             }
 
             @Override
@@ -169,13 +181,27 @@ public class reproductor_de_video extends AppCompatActivity {
         verificarFotoYMostrarDialogo();
     }
 
-    private void verificarFotoYMostrarDialogo() {
-        resetFotoTomada();
-        if (!cargarFotoSiExiste()) {
-            mostrarDialogoTomarFoto();
-        } else {
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(FOTO_TOMADA_KEY, FotoTomada);
+        outState.putString(NOMBRE_USUARIO_KEY, nombreUsuarioActual);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        FotoTomada = savedInstanceState.getBoolean(FOTO_TOMADA_KEY, false);
+        nombreUsuarioActual = savedInstanceState.getString(NOMBRE_USUARIO_KEY);
+        if (FotoTomada) {
+            cargarFoto();
             habilitarBotones(true);
         }
+    }
+
+    private void verificarFotoYMostrarDialogo() {
+        resetFotoTomada();
+        new CargarFotoTask().execute();
     }
 
     private void mostrarDialogoTomarFoto() {
@@ -193,6 +219,7 @@ public class reproductor_de_video extends AppCompatActivity {
 
     private void tomarFoto() {
         Intent tomarFotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        tomarFotoIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         if (tomarFotoIntent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(tomarFotoIntent, REQUEST_IMAGE_CAPTURE);
         }
@@ -228,121 +255,147 @@ public class reproductor_de_video extends AppCompatActivity {
         adelantar.setEnabled(habilitar);
     }
 
-    private void configurarMediaPlayer(SurfaceHolder holder) {
-        try {
-            mediaPlayer.reset();
-            mediaPlayer.setDisplay(holder);
+    private class ConfigurarMediaPlayerTask extends AsyncTask<SurfaceHolder, Void, Boolean> {
+        private SurfaceHolder holder;
 
-            // Obtener el URI del video según la categoría seleccionada
-            Uri videoUri = obtenerUriVideoPorCategoria(categoriaSeleccionada);
+        @Override
+        protected Boolean doInBackground(SurfaceHolder... holders) {
+            holder = holders[0];
+            try {
+                mediaPlayer.reset();
+                mediaPlayer.setDisplay(holder);
 
-            mediaPlayer.setDataSource(this, videoUri);
-            mediaPlayer.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Error al preparar el video", Toast.LENGTH_SHORT).show();
+                // Obtener el URI del video según la categoría seleccionada
+                Uri videoUri = obtenerUriVideoPorCategoria(categoriaSeleccionada);
+
+                mediaPlayer.setDataSource(reproductor_de_video.this, videoUri);
+                mediaPlayer.prepare();
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (!result) {
+                Toast.makeText(reproductor_de_video.this, "Error al preparar el video", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
     private Uri obtenerUriVideoPorCategoria(String categoria) {
-        int videoResourceId;
+        int videoResId;
         switch (categoria) {
             case "caricatura":
-                videoResourceId = R.raw.caricatura;
+                videoResId = R.raw.caricatura;
                 break;
             case "accion":
-                videoResourceId = R.raw.accion;
+                videoResId = R.raw.accion;
                 break;
             case "terror":
-                videoResourceId = R.raw.terror;
+                videoResId = R.raw.terror;
                 break;
-            // Agregar más categorías según sea necesario
             default:
-                videoResourceId = R.raw.caricatura; // Video por defecto en caso de categoría no reconocida
+                videoResId = R.raw.caricatura;
                 break;
         }
-        return Uri.parse("android.resource://" + getPackageName() + "/" + videoResourceId);
+        return Uri.parse("android.resource://" + getPackageName() + "/" + videoResId);
     }
 
     private void mostrarUsuarioEdad() {
         try {
-            BufferedReader buffered = new BufferedReader(new InputStreamReader(openFileInput("usuario_actual.txt")));
-            String usuarioData = buffered.readLine();
-            buffered.close();
-
-            if (usuarioData != null) {
-                String[] partes = usuarioData.split("\\|");
-                if (partes.length >= 2) {
-                    String nombre = partes[0];
-                    String edad = partes[1];
-                    nombreUsuarioActual = nombre;
-                    textNombre.setText("Nombre: " + nombre);
-                    textEdad.setText("Edad: " + edad);
+            File archivoUsuarios = new File(getFilesDir(), "usuarios.txt");
+            if (archivoUsuarios.exists()) {
+                BufferedReader lector = new BufferedReader(new InputStreamReader(openFileInput("usuarios.txt")));
+                String usuarioData = lector.readLine();
+                lector.close();
+                if (usuarioData != null) {
+                    String[] partes = usuarioData.split("\\|");
+                    if (partes.length >= 2) {
+                        String nombre = partes[0];
+                        String edad = partes[1];
+                        nombreUsuarioActual = nombre;
+                        textNombre.setText("Nombre: " + nombre);
+                        textEdad.setText("Edad: " + edad);
+                    } else {
+                        textNombre.setText("Datos de usuario no válidos");
+                        resetFotoTomada();
+                    }
                 } else {
-                    textNombre.setText("Datos de usuario no válidos");
+                    textNombre.setText("No se encontraron datos de usuario");
                     resetFotoTomada();
                 }
-            } else {
-                textNombre.setText("No hay usuario registrado");
-                resetFotoTomada();
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
-            textNombre.setText("Error al leer los datos del usuario");
+            textNombre.setText("Error al leer los datos de usuario");
             resetFotoTomada();
         }
     }
 
     private void resetFotoTomada() {
         FotoTomada = false;
-        imagen_foto.setImageBitmap(null);
         habilitarBotones(false);
     }
 
     private void guardarFoto(Bitmap bitmap) {
-        FileOutputStream fos = null;
-        try {
-            File archivo = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), nombreUsuarioActual + "_foto.png");
-            fos = new FileOutputStream(archivo);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-            fotoArchivo = archivo;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (fos != null) {
-                    fos.close();
-                }
+        File directorioFotos = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        if (directorioFotos != null) {
+            fotoArchivo = new File(directorioFotos, nombreUsuarioActual + "_foto.png");
+            try (FileOutputStream out = new FileOutputStream(fotoArchivo)) {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private boolean cargarFotoSiExiste() {
-        try {
-            File archivo = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), nombreUsuarioActual + "_foto.png");
-            if (archivo.exists()) {
-                Bitmap bitmap = BitmapFactory.decodeFile(archivo.getAbsolutePath());
+    private void cargarFoto() {
+        new CargarFotoTask().execute();
+    }
+
+    private class CargarFotoTask extends AsyncTask<Void, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(Void... voids) {
+            try {
+                File archivo = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), nombreUsuarioActual + "_foto.png");
+                if (archivo.exists()) {
+                    return BitmapFactory.decodeFile(archivo.getAbsolutePath());
+                } else {
+                    return null;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (bitmap != null) {
                 imagen_foto.setImageBitmap(bitmap);
                 FotoTomada = true;
-                return true;
+                habilitarBotones(true);
             } else {
-                return false;
+                habilitarBotones(false);
+                mostrarDialogoTomarFoto();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
         }
     }
 
     private void reproducirVideo() {
         if (FotoTomada) {
-            if (Stopped) {
-                configurarMediaPlayer(surfaceView.getHolder());
-                Stopped = false;
+            try {
+                if (Stopped) {
+                    mediaPlayer.prepare();
+                    Stopped = false;
+                }
+                mediaPlayer.start();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            mediaPlayer.start();
         } else {
             mostrarDialogoTomarFoto();
         }
