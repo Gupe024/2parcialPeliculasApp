@@ -24,5 +24,16 @@
         <item name="android:textColor">@color/morado</item>
         <item name="android:textSize">18dp</item>
     </style>
+    
+    <style name="Estilo3">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/rosado</item>
+    </style>
+
+    <style name="Estilo4">
+        <item name="android:textColor">@color/rosado</item>
+    </style>
+
+    <color name="your_background_color">#7FBAE9</color>
 
 </resources>

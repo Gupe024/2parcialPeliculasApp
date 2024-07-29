@@ -43,6 +43,7 @@ public class reproductor_de_video extends AppCompatActivity {
     ImageView imagen_foto;
     TextView textNombre;
     TextView textEdad;
+    TextView textGenero;
 
     boolean Stopped = false;
     boolean FotoTomada = false;
@@ -67,6 +68,7 @@ public class reproductor_de_video extends AppCompatActivity {
         imagen_foto = findViewById(R.id.imagen_foto);
         textNombre = findViewById(R.id.text_nombre);
         textEdad = findViewById(R.id.text_edad);
+        textGenero = findViewById(R.id.text_genero);
 
         if (savedInstanceState != null) {
             FotoTomada = savedInstanceState.getBoolean(FOTO_TOMADA_KEY, false);
@@ -313,12 +315,15 @@ public class reproductor_de_video extends AppCompatActivity {
                 lector.close();
                 if (usuarioData != null) {
                     String[] partes = usuarioData.split("\\|");
-                    if (partes.length >= 2) {
+                    if (partes.length >= 3) {
                         String nombre = partes[0];
                         String edad = partes[1];
+                        String genero = partes[2];
                         nombreUsuarioActual = nombre;
                         textNombre.setText("Nombre: " + nombre);
                         textEdad.setText("Edad: " + edad);
+                        textGenero.setText("Género: " + genero);
+
                     } else {
                         textNombre.setText("Datos de usuario no válidos");
                         resetFotoTomada();

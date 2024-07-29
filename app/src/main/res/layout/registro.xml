@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="25dp">
+    android:padding="25dp"
+    android:background="@color/your_background_color"
+    android:gravity="center_horizontal">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,14 +17,16 @@
             android:layout_height="wrap_content"
             android:text="@string/text_nombre"
             android:layout_marginEnd="15dp"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            style="style/Estilo3"/>
 
         <EditText
             android:id="@+id/nombre"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:hint="@string/hint_nombre"
-            android:inputType="text"/>
+            android:inputType="text"
+            style="style/Estilo3"/>
     </LinearLayout>
 
     <Spinner
@@ -39,7 +43,8 @@
         android:hint="@string/hint_edad_adicional"
         android:layout_marginTop="20dp"
         android:inputType="number"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        style="style/Estilo3"/>
     <Spinner
         android:id="@+id/spinner_genero"
         android:layout_width="match_parent"

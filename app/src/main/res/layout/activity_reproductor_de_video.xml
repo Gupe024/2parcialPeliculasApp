@@ -38,6 +38,15 @@
                 android:padding="8dp"
                 style="@style/Estilo2"/>
 
+            <TextView
+                android:id="@+id/text_genero"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Género: "
+                android:textSize="18sp"
+                android:padding="8dp"
+                style="@style/Estilo2"/>
+
         </LinearLayout>
 
         <ImageView
